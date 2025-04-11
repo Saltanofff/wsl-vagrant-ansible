@@ -9,7 +9,8 @@
 2. Install the virtualbox_WSL2 Plugin: This vagrant plugin addresses compatibility issues between virtualBox and WSL2. 
 `vagrant plugin install virtualbox_WSL2`
 3. Add into the Vagrantfile the following line to prevent error if this file not in the `/mnt/c/...` path
-```sh
-# action prevents Vagrant from attempting to sync the project directory, thereby bypassing the error
-config.vm.synced_folder ".", "/vagrant", disabled: true 
-```
+    ```bash
+    # action prevents Vagrant from attempting to sync the project directory, thereby bypassing the error
+    config.vm.synced_folder ".", "/vagrant", disabled: true 
+    ```
+4. Add custom ssh public key dedicated for Ansible to use instead of the default insecure vagrant key (as in the `Vagrantfile`)

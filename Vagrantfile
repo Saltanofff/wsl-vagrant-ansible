@@ -3,6 +3,7 @@ vm_hostname = "ansible-client"
 ssh_pub_key = File.read(File.expand_path("~/.ssh/ansible_key.pub")).strip
 vm_memory = "4096"
 vm_cpu = 2
+python_version = "3.12"
 
 Vagrant.configure("2") do |config|
     config.vm.box = "ubuntu/jammy64"  
@@ -11,11 +12,11 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = vm_hostname
     
     config.vm.provision "shell" do |s|
-      s.args = ["test.txt"]
+      s.args = [python_version]
       s.inline = <<-SHELL
-      touch /home/vagrant/$1
       echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
       echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+      add-apt-repository ppa:deadsnakes/ppa -y && apt-get update -y && apt-get install python$1 -y
     SHELL
     end
     

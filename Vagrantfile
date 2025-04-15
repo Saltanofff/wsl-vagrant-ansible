@@ -17,6 +17,8 @@ Vagrant.configure("2") do |config|
       echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
       echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
       add-apt-repository ppa:deadsnakes/ppa -y && apt-get update -y && apt-get install python$1 -y
+      echo 'vagrant ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/vagrant #disbale for user to pop-up password when use sudo
+      chmod 440 /etc/sudoers.d/vagrant
     SHELL
     end
     

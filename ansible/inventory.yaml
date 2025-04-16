@@ -8,7 +8,7 @@ all: #explicitly specify 'all' which includes every host defined in this invento
     ansible_port: 2223
     ansible_host: 127.0.0.1
     #ansible_ssh_private_key_file: local ssh config file is used to define key
-  children: #we want to create a parent group that encompasses multiple child groups
+  children: #use as we want to create a parent group that could encompasses multiple child groups
     production: 
       children:
         vagrant_vms:

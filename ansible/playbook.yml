@@ -1,0 +1,27 @@
+#Playbook checks for arch on the hosts and install required dependencies with minikube, kubectl on the hosts. Configure minikube as a systemd service.
+- name: Gather arch and create dynamic groups 
+#assume we need to get a new group based on the architecture maintained on the hosts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Group by architecture
+      ansible.builtin.group_by:
+        key: arch_{{ ansible_architecture }}
+
+- name: install system updates
+  ansible.builtin.apt: 
+    name: "*"
+    state: latest 
+    update_cache: yes
+
+- name: Download binaries and install dependencies
+  hosts: all
+  tasks:
+    - name: install dependencies
+      ansible.builtin.apt:
+        name: [ curl, apt-transport-https, ca-certificates, software-properties-common ]
+        state: present
+      
+    - name: download binaries
+
+      

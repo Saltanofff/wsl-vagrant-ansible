@@ -14,3 +14,12 @@
     config.vm.synced_folder ".", "/vagrant", disabled: true 
     ```
 4. Add custom ssh public key dedicated for Ansible to use instead of the default insecure vagrant key (as in the `Vagrantfile`)
+5. Ad-hoc commands:
+- `vagrant up`
+- `vagrant status`
+- `vagrant suspend`
+- `vagrant resume`
+- `vagrant destroy`
+- `vagrant ssh`
+- `vagrant ssh-config`
+- `vagrant global-status`

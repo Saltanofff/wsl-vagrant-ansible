@@ -1,0 +1,15 @@
+#local ssh config to be used by ansible when connects to localhost
+#ansible uses ~/.ssh/config unless you provide it with *ssh vars* in the inventory file
+Host localhost
+  HostName localhost
+  User saltanov
+  Port 2223
+  IdentityFile ~/.ssh/localhost_ssh
+  IdentitiesOnly yes
+
+Host 127.0.0.1
+  HostName 127.0.0.1
+  User saltanov
+  Port 2223
+  IdentityFile ~/.ssh/localhost_ssh
+  IdentitiesOnly yes

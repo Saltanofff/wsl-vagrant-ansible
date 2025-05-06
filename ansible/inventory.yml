@@ -1,5 +1,5 @@
 all: #explicitly specify 'all' which includes every host defined in this inventory file (implicitly if not sepcified always present)
-  hosts: #ungrouped hosts which are not part of any other groups
+  hosts: #below can be ungrouped hosts which are not part of any other groups
     localhost:
   vars: #inventory vars
     ansible_user: saltanov

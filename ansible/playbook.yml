@@ -1,27 +1,54 @@
 #Playbook checks for arch on the hosts and install required dependencies with minikube, kubectl on the hosts. Configure minikube as a systemd service.
-- name: Gather arch and create dynamic groups 
-#assume we need to get a new group based on the architecture maintained on the hosts
+- name: Preparation play
   hosts: all
   gather_facts: yes
+  vars:
+    localhost_ip: ^172\.
   tasks:
-    - name: Group by architecture
+    - name: gather arch, create dynamic groups grouped by arch
+      #assume we need to get a new group based on the architecture maintained on the hosts
       ansible.builtin.group_by:
-        key: arch_{{ ansible_architecture }}
+        key: "arch_{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
 
-- name: install system updates
-  ansible.builtin.apt: 
-    name: "*"
-    state: latest 
-    update_cache: yes
+    - name:  detect if the host is localhost
+      ansible.builtin.set_fact:
+         #filter ways to test localhost connection including configured IP address as 172.* 
+         is_localhost: >-
+           "{{ ansible_connection == 'local' or 
+              ansible_facts['default_ipv4']['address'] is search(localhost_ip) or
+              inventory_hostname in ['localhost', '127.0.0.1']
+           }}"
 
-- name: Download binaries and install dependencies
-  hosts: all
-  tasks:
-    - name: install dependencies
-      ansible.builtin.apt:
-        name: [ curl, apt-transport-https, ca-certificates, software-properties-common ]
-        state: present
+    - name: print group membership for dynamic groups created
+      ansible.builtin.debug:
+        msg: >- 
+          ansible controller hostname is {{ lookup('pipe', 'hostname') }}; 
+          dynamic group has name {{ item.key }} and contains the following hosts  {{ item.value }}
+      loop: "{{ groups | dict2items }}" #convert "groups" dict to list with "key" and "value" pairs [ {'key':'_group_', 'value': ['host1','host..'']}, {...} ]
+      when: item.key is match('^arch_')
+      run_once: true #we don't need repeated output, since all data will be defined from the first host run
+
+# - name: Install system updates, dependencies and add configs 
+#   hosts: all
+#   become: yes
+#   become_method: sudo
+    # vars:
+    #   minikube_version: 1.25.2
+    #   kubectl_version: 1.25.2
+    #   docker_version: 20.10.14
+#   ansible.builtin.apt: 
+#     name: "*"
+#     state: latest 
+#     update_cache: yes
+
+# - name: download binaries and install dependencies
+#   hosts: all
+#   tasks:
+#     - name: install dependencies
+#       ansible.builtin.apt:
+#         name: [ curl, apt-transport-https, ca-certificates, software-properties-common ]
+#         state: present
       
-    - name: download binaries
+#     - name: download binaries
 
       

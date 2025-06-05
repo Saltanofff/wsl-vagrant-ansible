@@ -1,0 +1,39 @@
+- name: Gather facts from all hosts via delegation
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Collect facts from all hosts
+      ansible.builtin.setup:
+      register: all_facts
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+
+    
+    - name: Show IP addresses of all hosts
+      debug:
+        msg: "Result for all facts are: {{ all_facts }} and IPs are{{ all_facts.results | map(attribute='ansible_facts.ansible_default_ipv4.address') | list }}"
+
+#One-time download with coordination
+# - name: Download and distribute shared archive
+#   hosts: webservers
+#   become: yes
+#   tasks:
+#     - name: Download shared archive (once)
+#       get_url:
+#         url: https://example.com/app.tar.gz
+#         dest: /tmp/app.tar.gz
+#         mode: '0644'
+#       delegate_to: localhost
+#       run_once: true
+
+#     - name: Copy archive to each webserver
+#       copy:
+#         src: /tmp/app.tar.gz
+#         dest: /opt/app.tar.gz
+#         mode: '0644'
+
+#     - name: Extract archive
+#       ansible.builtin.unarchive:
+#         src: /opt/app.tar.gz
+#         dest: /opt/app
+#         remote_src: yes

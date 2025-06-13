@@ -21,24 +21,24 @@ all: #explicitly specify 'all' which includes every host defined in this invento
           ansible_user: root
       vars: #inventory root_vm group vars
         root_vm_var: "myvar2"
-      production_all: 
-        children:
-          vagrant_vm:
-          root_vm:
-          vars: #inventory production_all group parent vars
-            ansible_python_interpreter: /usr/bin/python3
-            ansible_connection: ssh
-            ansible_port: 22
-            ansible_host: 192.168.56.4
-            ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
-      production_unpriveleged:
-        children:
-          vagrant_vm:
-          vars:  
-            ansible_python_interpreter: /usr/bin/python3
-            ansible_connection: ssh
-            ansible_port: 22
-            ansible_host: 192.168.56.4
-            ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
+    production_all: 
+      children:
+        vagrant_vm:
+        root_vm:
+        vars: #inventory production_all group parent vars
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_host: 192.168.56.4
+          ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
+    production_unpriveleged:
+      children:
+        vagrant_vm:
+        vars:  
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_host: 192.168.56.4
+          ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
 
           

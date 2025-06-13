@@ -6,7 +6,7 @@ You can create parent/child relationships among groups. This approach is usefull
   - Logical grouping of hosts
   - Reuse of variables
   - Simplified targeting
-  - Inheritance of group_vars
+  - Inheritance of group_vars. Specific group's folder vars file, will be automatically included in the parent group if you add this as the child
   - Separation of responsibility
 You can increment and automatically assign multiple hostnames with 
 ```sh

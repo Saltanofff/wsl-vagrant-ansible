@@ -1,4 +1,20 @@
 ## Ansible usage notes
+### Build your inventory
+The simplest inventory is a single file with a list of hosts and groups. The default location for this file is /etc/ansible/hosts. You can specify a different inventory source(s) at the command line using the `-i <path or expression>` option(s) or in using the configuration system. An inventory can be generated dynamically. For example, you can use an inventory plugin to list resources in one or more cloud providers (or other sources). 
+Even if you do not define any groups in your inventory file, Ansible creates two default groups: all and ungrouped after integrating all inventory sources. The all group contains every host. The ungrouped group contains all hosts that don’t have another group aside from all. Every host will always belong to at least 2 groups (all and ungrouped or all and some other group)
+You can create parent/child relationships among groups. This approach is usefull because:
+  - Logical grouping of hosts
+  - Reuse of variables
+  - Simplified targeting
+  - Inheritance of group_vars
+  - Separation of responsibility
+You can increment and automatically assign multiple hostnames with 
+```sh
+webservers:
+    hosts:
+      db-[a:f].example.com
+```
+
 ### Ansible configuration tests
 - Test inventory file to view groups and variable inheritance within the file `ansible-inventory -i inventory.yaml --list`
 - Test ssh connection with all defined hosts `ansible -i inventory.yaml all -m ping`
@@ -43,7 +59,7 @@ Reference to variable – `{{ variable_name }}`.  Variables may be defined in in
 ##### Magic variables 
 These variables cannot be set directly by the user; Ansible will always override them to reflect internal state. Examples:
 - `hostvars` - a dictionary/map with all the hosts in inventory and variables assigned to them, including `ansible_facts` dictionary
-- `groups` - a dictionary/map with all the groups in inventory and each group has the list of hosts that belong to it
+- `groups` - a dictionary/map with all the groups in inventory and each group has the list of hosts that belong to it `{'all': ['server1', 'server2', 'server3'], ..}`
 - `inventory_hostname` - contains the name of the host as configured in the inventory file
 
 Example on usage magic variables to configure a database connection for your app using the IP address of the DB server
@@ -104,7 +120,7 @@ Example - gather IPs from all hosts in one place (by default ansible gather fact
 
     - name: Show IP addresses of all hosts
       debug:
-        msg: "{{ all_facts.results | map(attribute='ansible_facts.ansible_default_ipv4.address') | list }}" #map() is lazy generator to get values use the list
+        msg: "{{ all_facts.results | map(attribute='ansible_facts.ansible_default_ipv4.address') | list }}" #map() is lazy generator, to get values use the list
 ```
 
 ### Ansible playbooks

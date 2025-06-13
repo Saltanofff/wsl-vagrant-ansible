@@ -1,0 +1,44 @@
+all: #explicitly specify 'all' which includes every host defined in this inventory file (implicitly if not sepcified always present)
+  children: #this is by default applied  to tell nested groups that they belong to all, so we don't necesarly list hosts directly under all
+    hosts: #below are the ungrouped hosts which are not part of any other groups except all
+      localhost:
+    vars: #These applies to all groups and hosts unless overriden my more specific variables. For cleaner setup we could apply them in group_vars/all.yml instead of defining vars
+      ansible_user: saltanov
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_connection: ssh #to skip ssh connection entirely just specify 'local'
+      ansible_port: 2223
+      ansible_host: 127.0.0.1
+      #ansible_ssh_private_key_file: local ssh config file is used to define key
+    vagrant_vm:
+      hosts:
+        server1: #alias instead of ip/dns name
+          ansible_user: vagrant #inventory host vars
+      vars:
+        vagrant_vm_var: "myvar1"
+    root_vm:
+      hosts:
+        server2:
+          ansible_user: root
+      vars: #inventory root_vm group vars
+        root_vm_var: "myvar2"
+      production_all: 
+        children:
+          vagrant_vm:
+          root_vm:
+          vars: #inventory production_all group parent vars
+            ansible_python_interpreter: /usr/bin/python3
+            ansible_connection: ssh
+            ansible_port: 22
+            ansible_host: 192.168.56.4
+            ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
+      production_unpriveleged:
+        children:
+          vagrant_vm:
+          vars:  
+            ansible_python_interpreter: /usr/bin/python3
+            ansible_connection: ssh
+            ansible_port: 22
+            ansible_host: 192.168.56.4
+            ansible_ssh_private_key_file: /home/saltanov/.ssh/ansible_key
+
+          

@@ -1,0 +1,2 @@
+#this file must match the exact name of the group defined in the inventory file
+vagrant_vm_var: 333

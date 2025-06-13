@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: yes
   vars:
-    localhost_ip: ^172\.
+    localhost_ip: '^172\.'
   tasks:
     - name: gather arch, create dynamic groups grouped by arch
       #assume we need to get a new group based on the architecture maintained on the hosts

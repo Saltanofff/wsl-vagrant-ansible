@@ -1,0 +1,3 @@
+#this file must match the exact name of the host defined in the inventory file
+#You don't need to tell Ansible where host_vars/ and group_vars/ are — it finds them automatically if they're next to the inventory file.
+localhost_var: 111

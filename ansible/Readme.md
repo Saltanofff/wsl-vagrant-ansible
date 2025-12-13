@@ -14,6 +14,36 @@ webservers:
     hosts:
       db-[a:f].example.com
 ```
+#### General structure of the inventory 
+It is a good practice to move vars from hosts.yaml as separate files because:
+  - when inventory grows -> not readable
+  - harder to scale, refactor -> you need to repeat vars
+  - Risky variable precedence -> has low precedence and could be mistakenly overriden
+  - version control overhead, e.g. hosts are changing more often than vars
+
+A group variable file applies to a group **if and only if** the filename (or directory name) exactly matches the group name in the inventory (in the hosts.yaml).
+
+```sh
+inventory/
+├── hosts.yml
+├── group_vars/
+│   ├── all.yml
+│   ├── web.yml
+│   └── prod.yml
+└── host_vars/
+    ├── web1.yml
+    └── db1.yml
+```
+When Ansible runs, it merges variables in this order (low → high):
+```sh
+group_vars/all
+↓
+group_vars/<parent_group>
+↓
+group_vars/<child_group>
+↓
+host_vars/<host>
+```
 
 ### Ansible configuration tests
 - Test inventory file to view groups and variable inheritance within the file `ansible-inventory -i inventory.yaml --list`

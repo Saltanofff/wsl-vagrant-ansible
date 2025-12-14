@@ -145,7 +145,7 @@ Example on usage magic variables to configure a database connection for your app
     vars:
         db_host_ip: "{{ hostvars[groups['db_servers'][0]]['ansible_host'] }}" #analog could be for debug is `ansible server1 -i inventory.yml -m debug -a "var=hostvars[groups['db_servers'][0]]['ansible_host']"`
         #get data directly from ansible connection variable
-        db_os: "{{ hostvars[groups['db_servers'][0]]['ansible_facts']['distribution'] }}"  #we finds name of the host first and then for that host getting from another key ['ansible_facts']['distribution'] the distribution
+        db_os: "{{ hostvars[groups['db_servers'][0]]['ansible_facts']['distribution'] }}"  #find name of the host first and then for that host getting from another key ['ansible_facts']['distribution'] the distribution
 ```
 
 ##### Facts
@@ -167,6 +167,47 @@ In Ansible, a flattened top-level fact refers to a fact that has been extracted 
 Connection variables are normally used to set the specifics on how to execute actions on a target Examples:
 `ansible_host` - The ip/name of the target host to use instead of `inventory_hostname`.
 `ansible_user` - The user Ansible ‘logs in’ as
+
+**The golden rule**
+Connection variables should follow the inventory hierarchy, not the playbook. That means:
+- Put common connection settings at the highest possible level
+- Put differences at group or host level
+- Avoid defining connection vars in tasks/playbooks
+
+Example:
+group_vars/all.yml
+```sh
+ansible_connection: ssh
+ansible_python_interpreter: /usr/bin/python3
+```
+group_vars/prod.yml
+```sh
+ansible_user: deploy
+ansible_ssh_private_key_file: ~/.ssh/prod_key
+ansible_port: 22
+```
+group_vars/web.yml
+`ansible_user: www-data`
+inventory/hosts.yml - most important defines **IPs**
+```sh
+all:
+  children:
+    prod:
+      children:
+        web:
+          hosts:
+            web1:
+              ansible_host: 10.0.0.10
+            web2:
+              ansible_host: 10.0.0.11
+```
+What NOT to do (common mistakes):
+❌ Put ansible_host in group vars
+❌ Mix prod & dev users in the same group
+❌ Hardcode users in playbooks
+❌ Use vars: inside tasks for connection info 
+
+#&#10060; - hint to use X in the markdown
 
 ### Ansible facts
 Facts gathering is a default zero task of any Ansible execution but may be turned off if necessarily. Variable `ansible_facts` contains host's system related data. By default, you can also access some Ansible facts as top-level variables with the `ansible_` prefix.

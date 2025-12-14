@@ -51,7 +51,17 @@ host_vars/<host>
 ### Ansible ad-hoc commands
 They achieve a form of idempotence by checking the current state before they begin and doing nothing unless the current state is different from the specified final state. 
 The default module for the ansible command-line utility is the [*ansible.builtin.command*](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html#command-module) module.
-By default, Ansible uses only five simultaneous processes. If you have more hosts than the value set for the fork count, it can increase the time it takes for Ansible to communicate with the hosts. For example, to reboot the `atlanta` servers with 10 parallel forks, connect as specific user and become remotely as root for privelege escalation: `$ ansible atlanta -a "/sbin/reboot" -f 10 -u username --become [--ask-become-pass]`. If you add `--ask-become-pass` or `-K`, Ansible prompts you for the password to use for privilege escalation
+By default, Ansible uses only five simultaneous processes. If you have more hosts than the value set for the fork count, it can increase the time it takes for Ansible to communicate with the hosts. For example, to reboot the `atlanta` servers with 10 parallel forks, connect as specific user and become remotely as root for privelege escalation: `$ ansible atlanta -a "/sbin/reboot" -f 10 -u username --become [--ask-become-pass]`. If you add `--ask-become-pass` or `-K`, Ansible prompts you for the password to use for privilege escalation.
+Instead of `-f`, you can set it in `ansible.cfg`:
+```sh
+[defaults]
+forks = 20
+```
+`/sbin/reboot:`
+Immediately drops the SSH connection. May cause Ansible to report the task as failed even though reboot succeeded. In playbooks, the safer approach is:
+```sh
+- reboot:
+```
 
 Some examples for execution ad-hoc commands on nodes: 
 - check disk utilization  `ansible -i inventory.yaml all -a "df -h"`

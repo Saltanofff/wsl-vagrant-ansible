@@ -8,6 +8,13 @@ You can create parent/child relationships among groups. This approach is usefull
   - Simplified targeting
   - Inheritance of group_vars. Specific group's folder vars file, will be automatically included in the parent group if you add this as the child
   - Separation of responsibility
+Under `children:` you may ONLY define group names, not hosts or vars. General structure is:
+```sh
+group:
+  hosts:
+  vars:
+  children:
+```
 You can increment and automatically assign multiple hostnames with 
 ```sh
 webservers:
@@ -63,7 +70,8 @@ Immediately drops the SSH connection. May cause Ansible to report the task as fa
 - reboot:
 ```
 
-Some examples for execution ad-hoc commands on nodes: 
+Some examples for execution ad-hoc commands on nodes and for debug: 
+- check inventory graph `ansible-inventory -i inventory.yml --graph`
 - check disk utilization  `ansible -i inventory.yaml all -a "df -h"`
 - transfer files `ansible -i inventory.yaml server1 -m ansible.builtin.copy -a "src=~/test.txt dest=/home/vagrant/test1.txt"`
 - to ensure a package is installed without updating it, however if not installed ansible install the package `ansible -i inventory.yaml server1 -m ansible.builtin.apt -a "name=ssh state=present" --become`
@@ -103,18 +111,41 @@ These variables cannot be set directly by the user; Ansible will always override
 - `groups` - a dictionary/map with all the groups in inventory and each group has the list of hosts that belong to it `{'all': ['server1', 'server2', 'server3'], ..}`
 - `inventory_hostname` - contains the name of the host as configured in the inventory file
 
+Exmaple from the output of `ansible server1 -i inventory.yml -m debug -a "var=hostvars"` 
+
+```sh
+server1 | SUCCESS => {
+    "hostvars": {
+        "server1": {
+            "ansible_config_file": "/etc/ansible/ansible.cfg",
+            "ansible_facts": {}
+            ....
+            "group_names": [
+                "production_all",
+                "production_unpriveleged",
+                "vagrant_vm"
+            ],
+            "groups": {
+                "all": [
+                    "server1",
+                    "server2"
+                ],
+                "production_all": [
+                    "server1",
+                    "server2"
+                ]
+                ...
+```
 Example on usage magic variables to configure a database connection for your app using the IP address of the DB server
 ```sh
-
     - name: Configure app with DB IP
     template:
         src: app.conf.j2
         dest: /etc/myapp/app.conf
     vars:
-        db_host_ip: "{{ hostvars[groups['db_servers'][0]]['ansible_host'] }}" 
+        db_host_ip: "{{ hostvars[groups['db_servers'][0]]['ansible_host'] }}" #analog could be for debug is `ansible server1 -i inventory.yml -m debug -a "var=hostvars[groups['db_servers'][0]]['ansible_host']"`
         #get data directly from ansible connection variable
-        db_os: "{{ hostvars[groups['db_servers'][0]]['ansible_facts']['distribution'] }}" 
-        #get data from ansible_facts
+        db_os: "{{ hostvars[groups['db_servers'][0]]['ansible_facts']['distribution'] }}"  #we finds name of the host first and then for that host getting from another key ['ansible_facts']['distribution'] the distribution
 ```
 
 ##### Facts

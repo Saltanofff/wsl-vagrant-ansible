@@ -188,6 +188,7 @@ ansible_port: 22
 ```
 group_vars/web.yml
 `ansible_user: www-data`
+
 inventory/hosts.yml - most important defines **IPs**
 ```sh
 all:

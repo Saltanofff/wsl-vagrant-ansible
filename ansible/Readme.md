@@ -1,6 +1,6 @@
 ## Ansible usage notes
 ### Build your inventory
-The simplest inventory is a single file with a list of hosts and groups. The default location for this file is /etc/ansible/hosts. You can specify a different inventory source(s) at the command line using the `-i <path or expression>` option(s) or in using the configuration system. An inventory can be generated dynamically. For example, you can use an inventory plugin to list resources in one or more cloud providers (or other sources). 
+The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory source(s) at the command line using the `-i <path or expression>` option(s) or in using the configuration system. An inventory can be generated dynamically. For example, you can use an inventory plugin to list resources in one or more cloud providers (or other sources). 
 Even if you do not define any groups in your inventory file, Ansible creates two default groups: all and ungrouped after integrating all inventory sources. The all group contains every host. The ungrouped group contains all hosts that don’t have another group aside from all. Every host will always belong to at least 2 groups (all and ungrouped or all and some other group)
 You can create parent/child relationships among groups. This approach is usefull because:
   - Logical grouping of hosts
@@ -18,7 +18,7 @@ webservers:
 It is a good practice to move vars from hosts.yaml as separate files because:
   - when inventory grows -> not readable
   - harder to scale, refactor -> you need to repeat vars
-  - Risky variable precedence -> has low precedence and could be mistakenly overriden
+  - risky variable precedence -> has low precedence and could be mistakenly overriden
   - version control overhead, e.g. hosts are changing more often than vars
 
 A group variable file applies to a group **if and only if** the filename (or directory name) exactly matches the group name in the inventory (in the hosts.yaml).
@@ -50,7 +50,7 @@ host_vars/<host>
 - Test ssh connection with all defined hosts `ansible -i inventory.yaml all -m ping`
 ### Ansible ad-hoc commands
 They achieve a form of idempotence by checking the current state before they begin and doing nothing unless the current state is different from the specified final state. 
-The default module for the ansible command-line utility is the [*ansible.builtin.command*](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html#command-module) module.
+The default module for the ansible command-line utility is the [*ansible.builtin.command*](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html#command-module) module, and `-a` passes arguments to the module
 By default, Ansible uses only five simultaneous processes. If you have more hosts than the value set for the fork count, it can increase the time it takes for Ansible to communicate with the hosts. For example, to reboot the `atlanta` servers with 10 parallel forks, connect as specific user and become remotely as root for privelege escalation: `$ ansible atlanta -a "/sbin/reboot" -f 10 -u username --become [--ask-become-pass]`. If you add `--ask-become-pass` or `-K`, Ansible prompts you for the password to use for privilege escalation.
 Instead of `-f`, you can set it in `ansible.cfg`:
 ```sh
@@ -87,13 +87,14 @@ Reference to variable – `{{ variable_name }}`.  Variables may be defined in in
     shell: "{{ item.shell }}" # "{{ user.shell}}"
     state: present
   loop:
-    - { name: "alice", uid: 1010, shell: "/bin/bash" }
+    - { name: "alice", uid: 1010, shell: "/bin/bash" } #here is we create iterable as dictionary type
     - { name: "bob", uid: 1011, shell: "/bin/zsh" }
   #loop_control:
   #  loop_var: user
 ```
-- check and test the variable by `ansible -i inventory.yaml all -m debug -a "var=variable_name"` 
-- always use quote filter to make sure your variables are safe to use with shell, for example in `{{ lookup('ansible.builtin.pipe', 'getent passwd ' ~ (myuser | quote)) }}`,  `quote` wraps the input string in single quotes '...' and escapes any existing single quotes inside the string. Therefore, before we execute command - `myuser` variable is expanded safely, e.g. `myuser | quote  →  'john; rm -rf /'` 
+- check and test the variable by `ansible -i inventory.yaml all -m debug -a "var=variable_name"`. We can use it to explore values of vars on each host
+- always use quote filter to make sure your variables are safe to use with shell, for example in `{{ lookup('ansible.builtin.pipe', 'getent passwd ' ~ (myuser | quote)) }}`, `~` is string concatination; `quote` wraps the input string in single quotes **'...'** and escapes any existing single quotes inside the string. Therefore, before we execute command - `myuser` variable is expanded safely as the string no command injection happens, e.g. `myuser | quote  →  'john; rm -rf /'`. Final command is `getent passwd 'john; rm -rf /'` 
+ 
 
 #### Special variables 
 ##### Magic variables 

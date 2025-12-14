@@ -187,8 +187,9 @@ ansible_ssh_private_key_file: ~/.ssh/prod_key
 ansible_port: 22
 ```
 group_vars/web.yml
-`ansible_user: www-data`
-
+```sh
+ansible_user: www-data
+```
 inventory/hosts.yml - most important defines **IPs**
 ```sh
 all:
@@ -203,12 +204,10 @@ all:
               ansible_host: 10.0.0.11
 ```
 What NOT to do (common mistakes):
-❌ Put ansible_host in group vars
-❌ Mix prod & dev users in the same group
-❌ Hardcode users in playbooks
-❌ Use vars: inside tasks for connection info 
-
-#&#10060; - hint to use X in the markdown
+- Put ansible_host in group vars
+- Mix prod & dev users in the same group
+- Hardcode users in playbooks
+- Use vars: inside tasks for connection info 
 
 ### Ansible facts
 Facts gathering is a default zero task of any Ansible execution but may be turned off if necessarily. Variable `ansible_facts` contains host's system related data. By default, you can also access some Ansible facts as top-level variables with the `ansible_` prefix.
